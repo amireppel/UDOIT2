@@ -27,7 +27,9 @@ class _MyAppState extends State<MyApp> {
       ActivitiesList(onNewActivityPressed: () {
         _onItemTapped(1);
       }),
-      NewActivity(),
+      NewActivity(onSaveActivity: () {
+        _onItemTapped(0);
+      }),
       Settings(),
     ];
 
