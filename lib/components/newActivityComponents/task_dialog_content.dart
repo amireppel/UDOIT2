@@ -134,12 +134,13 @@ class _AddTaskDialogContentState extends State<AddTaskDialogContent> {
           ),
           if (errorMessage != null)
             Padding(
-              padding: const EdgeInsets.only(top: 8.0),
+              padding: const EdgeInsets.only(top: 12.0),
               child: Text(
                 errorMessage!,
                 style: TextStyle(color: Colors.red),
               ),
             ),
+          SizedBox(height:15),//Add space between the duration input and the record button
           ElevatedButton(
             onPressed: _isRecording ? null : _startRecording,
             child: Text(_isRecording ? 'Recording...' : 'Record Voice Message'),
