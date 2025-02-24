@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../hooks/activities_provider.dart';
 import '../hooks/running_activity_provider.dart';
 import 'activitiesComponents/new_activity_button.dart';
+import 'runningActivityComponents/running_activity.dart';
 
 class ActivitiesList extends StatelessWidget {
   final VoidCallback onNewActivityPressed;
@@ -72,6 +73,10 @@ class ActivitiesList extends StatelessWidget {
                                 ? null
                                 : () {
                                     runningActivityProvider.setRunningActivity(true, index: activityIndex);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => RunningActivity()),
+                                    );
                                   },
                             child: Text('Play'),
                           ),
