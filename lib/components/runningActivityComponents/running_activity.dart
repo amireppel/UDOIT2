@@ -46,13 +46,13 @@ class _RunningActivityState extends State<RunningActivity> {
     super.dispose();
   }
 
-Future<String> _loadAsset(String assetPath) async {
-  final ByteData data = await rootBundle.load(assetPath);
-  final Directory tempDir = await getTemporaryDirectory();
-  final File tempFile = File('${tempDir.path}/dixie_horn.wav');
-  await tempFile.writeAsBytes(data.buffer.asUint8List(), flush: true);
-  return tempFile.uri.toString();
-}
+  Future<String> _loadAsset(String assetPath) async {
+    final ByteData data = await rootBundle.load(assetPath);
+    final Directory tempDir = await getTemporaryDirectory();
+    final File tempFile = File('${tempDir.path}/dixie_horn.wav');
+    await tempFile.writeAsBytes(data.buffer.asUint8List(), flush: true);
+    return tempFile.uri.toString();
+  }
 
   void _startNextTask() async {
     final runningActivityProvider = Provider.of<RunningActivityProvider>(context, listen: false);
@@ -62,9 +62,7 @@ Future<String> _loadAsset(String assetPath) async {
 
     final activity = activitiesProvider.activities[runningActivityProvider.runningActivityIndex!];
     if (_currentTaskIndex >= activity.tasks.length) {
-      runningActivityProvider.setRunningActivity(false, index: null);
-      Navigator.pop(context); // Navigate back to the previous screen
-      WakelockPlus.disable(); // Disable wakelock when activity ends
+      _finishActivity();
       return;
     }
 
@@ -92,111 +90,123 @@ Future<String> _loadAsset(String assetPath) async {
     }
   }
 
-void _startCountdown() {
-  _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-    if (!_isRunning) {
-      timer.cancel();
-      return;
-    }
-    setState(() {
-      if (_remainingTime > 0) {
-        _remainingTime--;
-        progress = _remainingTime / taskDuration.inSeconds;
-      } else {
+  void _startCountdown() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (!_isRunning) {
         timer.cancel();
-        _playCompletionSound().then((_) {
-          if (_currentTaskIndex < _getTotalTasks() - 1) {
-            _currentTaskIndex++;
-            _startNextTask();
-          } else {
-              _finishActivity();
-          }
-        });
+        return;
       }
+      setState(() {
+        if (_remainingTime > 0) {
+          _remainingTime--;
+          progress = _remainingTime / taskDuration.inSeconds;
+        } else {
+          timer.cancel();
+          _playCompletionSound().then((_) {
+            if (_currentTaskIndex < _getTotalTasks() - 1) {
+              _currentTaskIndex++;
+              _startNextTask();
+            } else {
+              _finishActivity();
+            
+            }
+          });
+        }
+      });
     });
-  });
-}
+  }
 
-Future<void> _playCompletionSound() async {
-  String soundPath = await _loadAsset('assets/sounds/dixie_horn.wav');
-  Completer<void> completer = Completer<void>();
-  await _player!.startPlayer(
-    fromURI: soundPath,
-    codec: Codec.aacADTS,
-    whenFinished: () {
+  Future<void> _playCompletionSound() async {
+    String soundPath = await _loadAsset('assets/sounds/dixie_horn.wav');
+    Completer<void> completer = Completer<void>();
+    await _player!.startPlayer(
+      fromURI: soundPath,
+      codec: Codec.aacADTS,
+      whenFinished: () {
+        completer.complete();
+      },
+    ).catchError((error) {
+      print('Error playing completion sound: $error');
       completer.complete();
-    },
-  ).catchError((error) {
-    print('Error playing completion sound: $error');
-    completer.complete();
-  });
-  return completer.future;
-}
+    });
+    return completer.future;
+  }
 
-void _finishActivity() {
-  final runningActivityProvider = Provider.of<RunningActivityProvider>(context, listen: false);
-  runningActivityProvider.setRunningActivity(false, index: null);
-  Navigator.pop(context); // Navigate back to the previous screen
-  WakelockPlus.disable(); // Disable wakelock when activity ends
-}
+  void _finishActivity() {
+    final runningActivityProvider = Provider.of<RunningActivityProvider>(context, listen: false);
+    runningActivityProvider.setRunningActivity(false, index: null);
+    Navigator.pop(context); // Navigate back to the previous screen
+    WakelockPlus.disable(); // Disable wakelock when activity ends
+  }
 
-int _getTotalTasks() {
-  final activitiesProvider = Provider.of<ActivitiesProvider>(context, listen: false);
-  final runningActivityProvider = Provider.of<RunningActivityProvider>(context, listen: false);
-  final activity = activitiesProvider.activities[runningActivityProvider.runningActivityIndex!];
-  return activity.tasks.length;
-}
+  int _getTotalTasks() {
+    final activitiesProvider = Provider.of<ActivitiesProvider>(context, listen: false);
+    final runningActivityProvider = Provider.of<RunningActivityProvider>(context, listen: false);
+    final activity = activitiesProvider.activities[runningActivityProvider.runningActivityIndex!];
+    return activity.tasks.length;
+  }
 
-void _stopCountdown() {
-  setState(() {
-    _isRunning = false;
-    _timer?.cancel();
-  });
-}
+  void _stopCountdown() {
+    setState(() {
+      _isRunning = false;
+      _timer?.cancel();
+    });
+  }
 
-void _continueCountdown() {
-  setState(() {
-    _isRunning = true;
-  });
-  _startCountdown();
-}
+  void _continueCountdown() {
+    setState(() {
+      _isRunning = true;
+    });
+    _startCountdown();
+  }
 
-@override
-Widget build(BuildContext context) {
-  final runningActivityProvider = Provider.of<RunningActivityProvider>(context);
-  final activitiesProvider = Provider.of<ActivitiesProvider>(context);
+  @override
+  Widget build(BuildContext context) {
+    final runningActivityProvider = Provider.of<RunningActivityProvider>(context);
+    final activitiesProvider = Provider.of<ActivitiesProvider>(context);
 
-  if (runningActivityProvider.runningActivityIndex == null) return Container();
+    if (runningActivityProvider.runningActivityIndex == null) return Container();
 
-  final activity = activitiesProvider.activities[runningActivityProvider.runningActivityIndex!];
-  final task = activity.tasks[_currentTaskIndex];
+    final activity = activitiesProvider.activities[runningActivityProvider.runningActivityIndex!];
+    final task = activity.tasks[_currentTaskIndex];
 
-  return Scaffold(
-    appBar: AppBar(
-      title: Text('Running Activity'),
-    ),
-    body: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          Text(
-            task.name,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+    return WillPopScope(
+      onWillPop: () async {
+        _finishActivity();
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: GestureDetector(
+            onTap: () {
+              _finishActivity();
+            },
+            child: Text('Running Activity'),
           ),
-          SizedBox(height: 20),
-          ProgressBar(
-            progress: progress,
-            duration: Duration(seconds: _remainingTime),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Text(
+                task.name,
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 20),
+              ProgressBar(
+                progress: progress,
+                duration: Duration(seconds: _remainingTime),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _isRunning ? _stopCountdown : _continueCountdown,
+                child: Text(_isRunning ? '||' : '▶'),
+              ),
+              // Add other UI elements here
+            ],
           ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: _isRunning ? _stopCountdown : _continueCountdown,
-            child: Text(_isRunning ? '||' : '▶'),
-          ),
-          // Add other UI elements here
-        ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
