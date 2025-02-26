@@ -1,4 +1,3 @@
-// File: lib/running_activity.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +12,10 @@ import '../../hooks/running_activity_provider.dart';
 import './progress_bar.dart';
 
 class RunningActivity extends StatefulWidget {
+  final int? loopCount;
+
+  RunningActivity({this.loopCount});
+
   @override
   _RunningActivityState createState() => _RunningActivityState();
 }
@@ -21,6 +24,7 @@ class _RunningActivityState extends State<RunningActivity> {
   FlutterSoundPlayer? _player;
   int _currentTaskIndex = 0;
   int _remainingTime = 0;
+  int _currentLoop = 1;
   Timer? _timer;
   late Duration taskDuration;
   late double progress = 1.0;
@@ -62,7 +66,13 @@ class _RunningActivityState extends State<RunningActivity> {
 
     final activity = activitiesProvider.activities[runningActivityProvider.runningActivityIndex!];
     if (_currentTaskIndex >= activity.tasks.length) {
-      _finishActivity();
+      if (widget.loopCount != null && _currentLoop < widget.loopCount!) {
+        _currentLoop++;
+        _currentTaskIndex = 0;
+        _startNextTask();
+      } else {
+        _finishActivity();
+      }
       return;
     }
 
@@ -107,8 +117,13 @@ class _RunningActivityState extends State<RunningActivity> {
               _currentTaskIndex++;
               _startNextTask();
             } else {
-              _finishActivity();
-            
+              if (widget.loopCount != null && _currentLoop < widget.loopCount!) {
+                _currentLoop++;
+                _currentTaskIndex = 0;
+                _startNextTask();
+              } else {
+                _finishActivity();
+              }
             }
           });
         }
@@ -188,6 +203,20 @@ class _RunningActivityState extends State<RunningActivity> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
+              if (widget.loopCount != null)
+                Column(
+                  children: [
+                    Text(
+                      'Number of Loops: ${widget.loopCount}',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      'Current Loop: $_currentLoop/${widget.loopCount}',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              SizedBox(height: 20),
               Text(
                 task.name,
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
