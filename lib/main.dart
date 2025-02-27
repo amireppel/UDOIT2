@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'hooks/activities_provider.dart';
 import 'hooks/running_activity_provider.dart';
 import 'hooks/new_activity_provider.dart';
+import 'hooks/settings_provider.dart';
 import 'components/activities_list.dart';
 import 'components/new_activity.dart';
 import 'components/settings.dart';
@@ -38,6 +39,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (context) => ActivitiesProvider()),
         ChangeNotifierProvider(create: (context) => RunningActivityProvider()),
         ChangeNotifierProvider(create: (context) => NewActivityProvider()),
+        ChangeNotifierProvider(create: (context) => SettingsProvider()),
       ],
       child: MaterialApp(
         home: Scaffold(
