@@ -78,6 +78,12 @@ class ActivitiesProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateActivity(int index, Activity updatedActivity) {
+    _activities[index] = updatedActivity;
+    _saveActivities();
+    notifyListeners();
+  }
+
   void addTaskToActivity(String activityName, Task task) {
     final activity = _activities.firstWhere((activity) => activity.name == activityName);
     activity.tasks.add(task);

@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../hooks/activities_provider.dart';
 import '../hooks/running_activity_provider.dart';
+import '../hooks/settings_provider.dart';
+import '../hooks/new_activity_provider.dart';
 import 'activitiesComponents/new_activity_button.dart';
 import 'runningActivityComponents/running_activity.dart';
 import 'runningActivityComponents/loop_count_modal.dart';
+import 'new_activity.dart';
 
 class ActivitiesList extends StatelessWidget {
   final VoidCallback onNewActivityPressed;
@@ -13,8 +16,8 @@ class ActivitiesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<ActivitiesProvider, RunningActivityProvider>(
-      builder: (context, activitiesProvider, runningActivityProvider, child) {
+    return Consumer4<ActivitiesProvider, RunningActivityProvider, SettingsProvider, NewActivityProvider>(
+      builder: (context, activitiesProvider, runningActivityProvider, settingsProvider, newActivityProvider, child) {
         return Column(
           children: [
             if (!runningActivityProvider.isRunningActivity)
@@ -59,11 +62,12 @@ class ActivitiesList extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10.0),
                         ),
                         child: ListTile(
-                          contentPadding: EdgeInsets.all(16.0),
+                          contentPadding: EdgeInsets.all(10.0),
                           title: Text(
                             activity.name,
                             style: TextStyle(
                               fontSize: 18.0,
+
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -122,6 +126,23 @@ class ActivitiesList extends StatelessWidget {
                                         );
                                       },
                                 child: Text('Play'),
+                              ),
+                              SizedBox(width: 8.0),
+                              IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: () {
+                                  newActivityProvider.startEditingActivity(activityIndex, activity);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => NewActivity(
+                                        onSaveActivity: () {
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             ],
                           ),

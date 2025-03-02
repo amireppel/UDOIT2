@@ -41,31 +41,37 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (context) => NewActivityProvider()),
         ChangeNotifierProvider(create: (context) => SettingsProvider()),
       ],
-      child: MaterialApp(
-        home: Scaffold(
-          appBar: AppBar(
-            title: Text('Activities App'),
-          ),
-          body: _widgetOptions.elementAt(_selectedIndex),
-          bottomNavigationBar: BottomNavigationBar(
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Icon(Icons.list),
-                label: 'Activities List',
+      child: Consumer<NewActivityProvider>(
+        builder: (context, newActivityProvider, child) {
+          return MaterialApp(
+            home: Scaffold(
+              appBar: AppBar(
+                title: Text('Activities App'),
               ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.add),
-                label: 'New Activity',
+              body: _widgetOptions.elementAt(_selectedIndex),
+              bottomNavigationBar: BottomNavigationBar(
+                items: <BottomNavigationBarItem>[
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.list),
+                    label: 'Activities List',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.add),
+                    label: newActivityProvider.editingActivityIndex != null
+                        ? 'Edit Activity'
+                        : 'New Activity',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.settings),
+                    label: 'Settings',
+                  ),
+                ],
+                currentIndex: _selectedIndex,
+                onTap: _onItemTapped,
               ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.settings),
-                label: 'Settings',
-              ),
-            ],
-            currentIndex: _selectedIndex,
-            onTap: _onItemTapped,
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

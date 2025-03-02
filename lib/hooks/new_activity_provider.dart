@@ -7,10 +7,12 @@ class NewActivityProvider with ChangeNotifier {
   ValueNotifier<String> activityNameNotifier = ValueNotifier<String>('');
   ValueNotifier<List<Task>> tasksNotifier = ValueNotifier<List<Task>>([]);
   Task? _editingTask;
+  int? _editingActivityIndex;
 
   String get activityName => _activityName;
   List<Task> get tasks => _tasks;
   Task? get editingTask => _editingTask;
+  int? get editingActivityIndex => _editingActivityIndex;
 
   void updateActivityName(String name) {
     _activityName = name;
@@ -43,6 +45,24 @@ class NewActivityProvider with ChangeNotifier {
 
   void clearEditingTask() {
     _editingTask = null;
+    notifyListeners();
+  }
+
+  void startEditingActivity(int index, Activity activity) {
+    _editingActivityIndex = index;
+    _activityName = activity.name;
+    _tasks = List.from(activity.tasks);
+    activityNameNotifier.value = activity.name;
+    tasksNotifier.value = List.from(activity.tasks);
+    notifyListeners();
+  }
+
+  void stopEditingActivity() {
+    _editingActivityIndex = null;
+    _activityName = '';
+    _tasks = [];
+    activityNameNotifier.value = '';
+    tasksNotifier.value = [];
     notifyListeners();
   }
 }

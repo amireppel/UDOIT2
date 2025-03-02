@@ -8,6 +8,7 @@ import 'dart:io';
 import 'dart:async';
 import '../../hooks/activities_provider.dart';
 import '../../hooks/running_activity_provider.dart';
+import '../../hooks/settings_provider.dart';
 
 import './progress_bar.dart';
 
@@ -53,7 +54,7 @@ class _RunningActivityState extends State<RunningActivity> {
   Future<String> _loadAsset(String assetPath) async {
     final ByteData data = await rootBundle.load(assetPath);
     final Directory tempDir = await getTemporaryDirectory();
-    final File tempFile = File('${tempDir.path}/dixie_horn.wav');
+    final File tempFile = File('${tempDir.path}/${assetPath.split('/').last}');
     await tempFile.writeAsBytes(data.buffer.asUint8List(), flush: true);
     return tempFile.uri.toString();
   }
@@ -61,6 +62,7 @@ class _RunningActivityState extends State<RunningActivity> {
   void _startNextTask() async {
     final runningActivityProvider = Provider.of<RunningActivityProvider>(context, listen: false);
     final activitiesProvider = Provider.of<ActivitiesProvider>(context, listen: false);
+    final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
 
     if (runningActivityProvider.runningActivityIndex == null) return;
 
@@ -84,19 +86,25 @@ class _RunningActivityState extends State<RunningActivity> {
       _isRunning = true; // Reset running state
     });
 
-    if (task.soundFile.isNotEmpty) {
+    if (task.soundFile.isNotEmpty  && settingsProvider.playRecording){
       _player!.startPlayer(
         fromURI: task.soundFile,
         codec: Codec.aacADTS,
         whenFinished: () {
-          _startCountdown();
+          _playStartSound().then((_) {
+            _startCountdown();
+          });
         },
       ).catchError((error) {
         print('Error playing task sound: $error');
-        _startCountdown();
+        _playStartSound().then((_) {
+          _startCountdown();
+        });
       });
     } else {
-      _startCountdown();
+      _playStartSound().then((_) {
+        _startCountdown();
+      });
     }
   }
 
@@ -131,20 +139,42 @@ class _RunningActivityState extends State<RunningActivity> {
     });
   }
 
-  Future<void> _playCompletionSound() async {
-    String soundPath = await _loadAsset('assets/sounds/dixie_horn.wav');
-    Completer<void> completer = Completer<void>();
-    await _player!.startPlayer(
-      fromURI: soundPath,
-      codec: Codec.aacADTS,
-      whenFinished: () {
+  Future<void> _playStartSound() async {
+    final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+    if (settingsProvider.playStartSound) {
+      String soundPath = await _loadAsset(settingsProvider.startSoundFile.path);
+      Completer<void> completer = Completer<void>();
+      await _player!.startPlayer(
+        fromURI: soundPath,
+        codec: Codec.aacADTS,
+        whenFinished: () {
+          completer.complete();
+        },
+      ).catchError((error) {
+        print('Error playing start sound: $error');
         completer.complete();
-      },
-    ).catchError((error) {
-      print('Error playing completion sound: $error');
-      completer.complete();
-    });
-    return completer.future;
+      });
+      return completer.future;
+    }
+  }
+
+  Future<void> _playCompletionSound() async {
+    final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+    if (settingsProvider.playEndSound) {
+      String soundPath = await _loadAsset(settingsProvider.endSoundFile.path);
+      Completer<void> completer = Completer<void>();
+      await _player!.startPlayer(
+        fromURI: soundPath,
+        codec: Codec.aacADTS,
+        whenFinished: () {
+          completer.complete();
+        },
+      ).catchError((error) {
+        print('Error playing completion sound: $error');
+        completer.complete();
+      });
+      return completer.future;
+    }
   }
 
   void _finishActivity() {
@@ -185,10 +215,12 @@ class _RunningActivityState extends State<RunningActivity> {
     final activity = activitiesProvider.activities[runningActivityProvider.runningActivityIndex!];
     final task = activity.tasks[_currentTaskIndex];
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if(didPop) return;
         _finishActivity();
-        return true;
+        
       },
       child: Scaffold(
         appBar: AppBar(
