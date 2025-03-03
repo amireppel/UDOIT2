@@ -32,6 +32,12 @@ class NewActivityProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void deleteTask(Task task) {
+    _tasks.remove(task);
+    tasksNotifier.value = List.from(_tasks);
+    notifyListeners();
+  }
+
   void editTask(Task task) {
     _editingTask = task;
     notifyListeners();

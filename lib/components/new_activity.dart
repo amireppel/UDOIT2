@@ -5,6 +5,7 @@ import 'package:flutter_sound/flutter_sound.dart';
 import '../hooks/new_activity_provider.dart';
 import '../hooks/activities_provider.dart';
 import './newActivityComponents/show_add_task_dialog.dart';
+import './newActivityComponents/copy_task_dialog.dart';
 
 class NewActivity extends StatefulWidget {
   final VoidCallback onSaveActivity;
@@ -69,11 +70,16 @@ class _NewActivityState extends State<NewActivity> {
         if (_activityNameController.text != newActivityProvider.activityName) {
           _activityNameController.text = newActivityProvider.activityName;
         }
-        return WillPopScope(
-          onWillPop: () async {
-            newActivityProvider.stopEditingActivity();
-            Navigator.pop(context);
-            return false;
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) {
+              return;
+            }
+            if (newActivityProvider.editingActivityIndex != null) {
+              newActivityProvider.stopEditingActivity();
+            }
+            widget.onSaveActivity();
           },
           child: Scaffold(
             appBar: AppBar(
@@ -111,29 +117,56 @@ class _NewActivityState extends State<NewActivity> {
                                 ),
                             ],
                           ),
-                          trailing: IconButton(
-                            icon: Icon(Icons.edit),
-                            onPressed: () {
-                              newActivityProvider.editTask(task);
-                              showAddTaskDialog(context, newActivityProvider, task: task);
-                            },
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: () {
+                                  newActivityProvider.editTask(task);
+                                  showAddTaskDialog(context, newActivityProvider, task: task);
+                                },
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete),
+                                onPressed: () {
+                                  newActivityProvider.deleteTask(task);
+                                },
+                              ),
+                            ],
                           ),
                         );
                       },
                     ),
                   ),
-                  ValueListenableBuilder(
-                    valueListenable: newActivityProvider.activityNameNotifier,
-                    builder: (context, activityName, child) {
-                      return activityName.isNotEmpty
-                          ? ElevatedButton(
-                              onPressed: () {
-                                showAddTaskDialog(context, newActivityProvider);
-                              },
-                              child: Text('Add Task'),
-                            )
-                          : Container();
-                    },
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          showAddTaskDialog(context, newActivityProvider);
+                        },
+                        child: Text('Add Task'),
+                      ),
+                      ValueListenableBuilder(
+                        valueListenable: newActivityProvider.tasksNotifier,
+                        builder: (context, tasks, child) {
+                          return tasks.isNotEmpty
+                              ? Row(
+                                  children: [
+                                    SizedBox(width: 16.0),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        showCopyTaskDialog(context, newActivityProvider);
+                                      },
+                                      child: Text('Add a Copy'),
+                                    ),
+                                  ],
+                                )
+                              : Container();
+                        },
+                      ),
+                    ],
                   ),
                   SizedBox(height: 16.0),
                   ValueListenableBuilder(
