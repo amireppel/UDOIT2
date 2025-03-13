@@ -75,6 +75,10 @@ class MyAppState extends State<MyApp> {
                 onTap: _onItemTapped,
               ),
             ),
+            theme: ThemeData(
+              colorScheme: ColorScheme.light(primary: Colors.blue),
+              primarySwatch: Colors.red,
+            ),
           );
         },
       ),

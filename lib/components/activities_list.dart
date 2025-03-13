@@ -49,7 +49,7 @@ class ActivitiesList extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  'Running Activity: ${activitiesProvider.activities[runningActivityProvider.runningActivityIndex!].name}',
+                  'Running!!! ${activitiesProvider.activities[runningActivityProvider.runningActivityIndex!].name}',
                   style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                 ),
               )

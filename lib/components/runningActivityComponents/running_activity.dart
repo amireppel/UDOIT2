@@ -303,7 +303,7 @@ class _RunningActivityState extends State<RunningActivity> {
             onTap: () {
               _finishActivity();
             },
-            child: Text('Running Activity'),
+            child: Text('Exit'),
           ),
         ),
         body: SingleChildScrollView(
@@ -342,11 +342,14 @@ class _RunningActivityState extends State<RunningActivity> {
                     progress: progress,
                     duration: Duration(seconds: _remainingTime),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 50),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                        ),
                         onPressed:
                             _currentTaskIndex == 0
                                 ? null
@@ -354,15 +357,26 @@ class _RunningActivityState extends State<RunningActivity> {
                                   _moveToTask(_currentTaskIndex - 1);
                                 },
 
-                        child: Text('Previous'),
+                        child: Icon(
+                          Icons.navigate_before,
+                          size: 60,
+                          color:
+                              _currentTaskIndex != 0
+                                  ? Colors.blue
+                                  : Colors.grey,
+                        ),
                       ),
-                      SizedBox(width: 10),
+                      SizedBox(width: 10, height: 10),
                       ElevatedButton(
                         onPressed:
                             _isRunning && !_isSkipmode
                                 ? _stopCountdown
                                 : _continueCountdown,
-                        child: Text(_isRunning ? '||' : '▶'),
+                        child: Icon(
+                          _isRunning ? Icons.pause : Icons.play_arrow,
+                          size: 60,
+                          color: Colors.blue,
+                        ),
                       ),
                       SizedBox(width: 10),
                       ElevatedButton(
@@ -372,8 +386,18 @@ class _RunningActivityState extends State<RunningActivity> {
                                 : () {
                                   _moveToTask(_currentTaskIndex + 1);
                                 },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                        ),
                         // Add functionality for next button here
-                        child: Text('Next'),
+                        child: Icon(
+                          Icons.navigate_next,
+                          size: 60,
+                          color:
+                              _currentTaskIndex + 1 != activity.tasks.length
+                                  ? Colors.blue
+                                  : Colors.grey,
+                        ),
                       ),
                     ],
                   ),
