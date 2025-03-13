@@ -12,7 +12,8 @@ class SettingItem extends StatelessWidget {
   final String? soundName;
   final TextStyle? textStyle;
 
-  SettingItem({
+  const SettingItem({
+    super.key,
     required this.title,
     required this.value,
     required this.onChanged,
@@ -70,10 +71,7 @@ class SettingItem extends StatelessWidget {
                 ),
               ],
             ),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-          ),
+          Switch(value: value, onChanged: onChanged),
         ],
       ),
     );

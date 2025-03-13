@@ -6,7 +6,8 @@ class SoundWheel extends StatelessWidget {
   final int initialIndex;
   final ValueChanged<int> onSelectedItemChanged;
 
-  SoundWheel({
+  const SoundWheel({
+    super.key,
     required this.soundFiles,
     required this.initialIndex,
     required this.onSelectedItemChanged,
@@ -14,16 +15,14 @@ class SoundWheel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 200,
       child: ListWheelScrollView.useDelegate(
         itemExtent: 50,
         onSelectedItemChanged: onSelectedItemChanged,
         childDelegate: ListWheelChildBuilderDelegate(
           builder: (context, index) {
-            return Center(
-              child: Text(soundFiles[index].name),
-            );
+            return Center(child: Text(soundFiles[index].name));
           },
           childCount: soundFiles.length,
         ),
@@ -32,7 +31,12 @@ class SoundWheel extends StatelessWidget {
   }
 }
 
-void showSoundWheel(BuildContext context, List<SoundFile> soundFiles, int initialIndex, ValueChanged<int> onSelectedItemChanged) {
+void showSoundWheel(
+  BuildContext context,
+  List<SoundFile> soundFiles,
+  int initialIndex,
+  ValueChanged<int> onSelectedItemChanged,
+) {
   showModalBottomSheet(
     context: context,
     builder: (context) {

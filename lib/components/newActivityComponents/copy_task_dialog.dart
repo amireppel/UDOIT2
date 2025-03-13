@@ -3,7 +3,10 @@ import 'dart:io';
 import '../../hooks/new_activity_provider.dart';
 import '../../hooks/activities_provider.dart'; // Import Task from activities_provider.dart
 
-void showCopyTaskDialog(BuildContext context, NewActivityProvider newActivityProvider) {
+void showCopyTaskDialog(
+  BuildContext context,
+  NewActivityProvider newActivityProvider,
+) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -12,7 +15,7 @@ void showCopyTaskDialog(BuildContext context, NewActivityProvider newActivityPro
         builder: (context, setState) {
           return AlertDialog(
             title: Text('Select a Task to Copy'),
-            content: Container(
+            content: SizedBox(
               width: double.maxFinite,
               height: 200.0, // Set a fixed height for the list
               child: ListView.builder(
@@ -40,7 +43,9 @@ void showCopyTaskDialog(BuildContext context, NewActivityProvider newActivityPro
                     String? copiedSoundFile;
                     if (selectedTask!.soundFile.isNotEmpty) {
                       final originalFile = File(selectedTask!.soundFile);
-                      final copiedFile = File('${selectedTask!.soundFile}_copy');
+                      final copiedFile = File(
+                        '${selectedTask!.soundFile}_copy',
+                      );
                       await originalFile.copy(copiedFile.path);
                       copiedSoundFile = copiedFile.path;
                     }

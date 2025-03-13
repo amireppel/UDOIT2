@@ -10,7 +10,7 @@ import './newActivityComponents/copy_task_dialog.dart';
 class NewActivity extends StatefulWidget {
   final VoidCallback onSaveActivity;
 
-  NewActivity({required this.onSaveActivity});
+  const NewActivity({super.key, required this.onSaveActivity});
 
   @override
   _NewActivityState createState() => _NewActivityState();
@@ -28,8 +28,10 @@ class _NewActivityState extends State<NewActivity> {
     _player!.openPlayer();
     _activityNameController = TextEditingController();
     _activityNameController.addListener(() {
-      Provider.of<NewActivityProvider>(context, listen: false)
-          .updateActivityName(_activityNameController.text);
+      Provider.of<NewActivityProvider>(
+        context,
+        listen: false,
+      ).updateActivityName(_activityNameController.text);
     });
   }
 
@@ -83,9 +85,11 @@ class _NewActivityState extends State<NewActivity> {
           },
           child: Scaffold(
             appBar: AppBar(
-              title: Text(newActivityProvider.editingActivityIndex != null
-                  ? 'Edit Activity'
-                  : 'Create New Activity'),
+              title: Text(
+                newActivityProvider.editingActivityIndex != null
+                    ? 'Edit Activity'
+                    : 'Create New Activity',
+              ),
             ),
             body: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -105,15 +109,21 @@ class _NewActivityState extends State<NewActivity> {
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Duration: ${task.durationInSeconds} seconds'),
+                              Text(
+                                'Duration: ${task.durationInSeconds} seconds',
+                              ),
                               if (task.soundFile.isNotEmpty)
                                 ElevatedButton(
-                                  onPressed: _currentlyPlaying == task.soundFile
-                                      ? _stopPlaying
-                                      : () => _playRecording(task.soundFile),
-                                  child: Text(_currentlyPlaying == task.soundFile
-                                      ? 'Stop Playing'
-                                      : 'Play Recording'),
+                                  onPressed:
+                                      _currentlyPlaying == task.soundFile
+                                          ? _stopPlaying
+                                          : () =>
+                                              _playRecording(task.soundFile),
+                                  child: Text(
+                                    _currentlyPlaying == task.soundFile
+                                        ? 'Stop Playing'
+                                        : 'Play Recording',
+                                  ),
                                 ),
                             ],
                           ),
@@ -124,7 +134,11 @@ class _NewActivityState extends State<NewActivity> {
                                 icon: Icon(Icons.edit),
                                 onPressed: () {
                                   newActivityProvider.editTask(task);
-                                  showAddTaskDialog(context, newActivityProvider, task: task);
+                                  showAddTaskDialog(
+                                    context,
+                                    newActivityProvider,
+                                    task: task,
+                                  );
                                 },
                               ),
                               IconButton(
@@ -153,16 +167,19 @@ class _NewActivityState extends State<NewActivity> {
                         builder: (context, tasks, child) {
                           return tasks.isNotEmpty
                               ? Row(
-                                  children: [
-                                    SizedBox(width: 16.0),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        showCopyTaskDialog(context, newActivityProvider);
-                                      },
-                                      child: Text('Add a Copy'),
-                                    ),
-                                  ],
-                                )
+                                children: [
+                                  SizedBox(width: 16.0),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      showCopyTaskDialog(
+                                        context,
+                                        newActivityProvider,
+                                      );
+                                    },
+                                    child: Text('Add a Copy'),
+                                  ),
+                                ],
+                              )
                               : Container();
                         },
                       ),
@@ -174,26 +191,29 @@ class _NewActivityState extends State<NewActivity> {
                     builder: (context, tasks, child) {
                       return tasks.isNotEmpty
                           ? ElevatedButton(
-                              onPressed: () {
-                                final newActivity = Activity(
-                                  name: newActivityProvider.activityName,
-                                  tasks: List<Task>.from(newActivityProvider.tasks),
+                            onPressed: () {
+                              final newActivity = Activity(
+                                name: newActivityProvider.activityName,
+                                tasks: List<Task>.from(
+                                  newActivityProvider.tasks,
+                                ),
+                              );
+                              if (newActivityProvider.editingActivityIndex !=
+                                  null) {
+                                activitiesProvider.updateActivity(
+                                  newActivityProvider.editingActivityIndex!,
+                                  newActivity,
                                 );
-                                if (newActivityProvider.editingActivityIndex != null) {
-                                  activitiesProvider.updateActivity(
-                                    newActivityProvider.editingActivityIndex!,
-                                    newActivity,
-                                  );
-                                  newActivityProvider.stopEditingActivity();
-                                } else {
-                                  activitiesProvider.addActivity(newActivity);
-                                }
-                                newActivityProvider.updateActivityName('');
-                                newActivityProvider.clearTasks();
-                                widget.onSaveActivity();
-                              },
-                              child: Text('Save Activity'),
-                            )
+                                newActivityProvider.stopEditingActivity();
+                              } else {
+                                activitiesProvider.addActivity(newActivity);
+                              }
+                              newActivityProvider.updateActivityName('');
+                              newActivityProvider.clearTasks();
+                              widget.onSaveActivity();
+                            },
+                            child: Text('Save Activity'),
+                          )
                           : Container();
                     },
                   ),

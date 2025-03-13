@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class LoopCountModal extends StatefulWidget {
   final Function(int) onProceed;
 
-  LoopCountModal({required this.onProceed});
+  const LoopCountModal({super.key, required this.onProceed});
 
   @override
   _LoopCountModalState createState() => _LoopCountModalState();

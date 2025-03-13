@@ -9,11 +9,13 @@ import 'components/new_activity.dart';
 import 'components/settings.dart';
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
-  _MyAppState createState() => _MyAppState();
+  MyAppState createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> {
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
@@ -24,13 +26,17 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> _widgetOptions = <Widget>[
-      ActivitiesList(onNewActivityPressed: () {
-        _onItemTapped(1);
-      }),
-      NewActivity(onSaveActivity: () {
-        _onItemTapped(0);
-      }),
+    List<Widget> widgetOptions = <Widget>[
+      ActivitiesList(
+        onNewActivityPressed: () {
+          _onItemTapped(1);
+        },
+      ),
+      NewActivity(
+        onSaveActivity: () {
+          _onItemTapped(0);
+        },
+      ),
       Settings(),
     ];
 
@@ -45,10 +51,8 @@ class _MyAppState extends State<MyApp> {
         builder: (context, newActivityProvider, child) {
           return MaterialApp(
             home: Scaffold(
-              appBar: AppBar(
-                title: Text('Activities App'),
-              ),
-              body: _widgetOptions.elementAt(_selectedIndex),
+              appBar: AppBar(title: Text('Activities App')),
+              body: widgetOptions.elementAt(_selectedIndex),
               bottomNavigationBar: BottomNavigationBar(
                 items: <BottomNavigationBarItem>[
                   BottomNavigationBarItem(
@@ -57,9 +61,10 @@ class _MyAppState extends State<MyApp> {
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.add),
-                    label: newActivityProvider.editingActivityIndex != null
-                        ? 'Edit Activity'
-                        : 'New Activity',
+                    label:
+                        newActivityProvider.editingActivityIndex != null
+                            ? 'Edit Activity'
+                            : 'New Activity',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.settings),

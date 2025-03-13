@@ -13,7 +13,8 @@ class AddTaskDialogContent extends StatefulWidget {
   final NewActivityProvider newActivityProvider;
   final Task? editingTask;
 
-  AddTaskDialogContent({
+  const AddTaskDialogContent({
+    super.key,
     required this.taskNameController,
     required this.taskDurationController,
     required this.newActivityProvider,
@@ -55,10 +56,7 @@ class _AddTaskDialogContentState extends State<AddTaskDialogContent> {
     Directory tempDir = await getTemporaryDirectory();
     String uniqueFileName = '${DateTime.now().millisecondsSinceEpoch}.aac';
     String tempPath = '${tempDir.path}/$uniqueFileName';
-    await _recorder!.startRecorder(
-      toFile: tempPath,
-      codec: Codec.aacADTS,
-    );
+    await _recorder!.startRecorder(toFile: tempPath, codec: Codec.aacADTS);
     setState(() {
       _isRecording = true;
       _recordedFilePath = tempPath;
@@ -114,7 +112,7 @@ class _AddTaskDialogContentState extends State<AddTaskDialogContent> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: MediaQuery.of(context).size.width * 0.8,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -129,18 +127,19 @@ class _AddTaskDialogContentState extends State<AddTaskDialogContent> {
             keyboardType: TextInputType.number,
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
-              LengthLimitingTextInputFormatter(4), // Limit input length to 4 digits
+              LengthLimitingTextInputFormatter(
+                4,
+              ), // Limit input length to 4 digits
             ],
           ),
           if (errorMessage != null)
             Padding(
               padding: const EdgeInsets.only(top: 12.0),
-              child: Text(
-                errorMessage!,
-                style: TextStyle(color: Colors.red),
-              ),
+              child: Text(errorMessage!, style: TextStyle(color: Colors.red)),
             ),
-          SizedBox(height:15),//Add space between the duration input and the record button
+          SizedBox(
+            height: 15,
+          ), //Add space between the duration input and the record button
           ElevatedButton(
             onPressed: _isRecording ? null : _startRecording,
             child: Text(_isRecording ? 'Recording...' : 'Record Voice Message'),
@@ -168,14 +167,16 @@ class _AddTaskDialogContentState extends State<AddTaskDialogContent> {
               TextButton(
                 onPressed: () {
                   final taskName = widget.taskNameController.text;
-                  final taskDuration = int.tryParse(widget.taskDurationController.text) ?? -1;
+                  final taskDuration =
+                      int.tryParse(widget.taskDurationController.text) ?? -1;
                   if (taskName.isEmpty) {
                     setState(() {
                       errorMessage = 'Please enter a name';
                     });
                   } else if (taskDuration < 0 || taskDuration > 1000) {
                     setState(() {
-                      errorMessage = 'Please enter a valid duration between 0 and 1000 seconds';
+                      errorMessage =
+                          'Please enter a valid duration between 0 and 1000 seconds';
                     });
                   } else {
                     final newTask = Task(

@@ -5,6 +5,8 @@ import 'settingsComponents/setting_item.dart';
 import 'settingsComponents/sound_wheel.dart';
 
 class Settings extends StatefulWidget {
+  const Settings({super.key});
+
   @override
   _SettingsState createState() => _SettingsState();
 }
@@ -35,7 +37,9 @@ class _SettingsState extends State<Settings> {
     return Consumer<SettingsProvider>(
       builder: (context, settingsProvider, child) {
         return Padding(
-          padding: const EdgeInsets.only(top: 50.0), // Adjust the top padding as needed
+          padding: const EdgeInsets.only(
+            top: 50.0,
+          ), // Adjust the top padding as needed
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -44,9 +48,7 @@ class _SettingsState extends State<Settings> {
                 Text('Settings Screen'),
                 TextButton(
                   onPressed: _closeSoundWheel,
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.black,
-                  ),
+                  style: TextButton.styleFrom(foregroundColor: Colors.black),
                   child: SettingItem(
                     title: 'Play All',
                     value: settingsProvider.playAll,
@@ -62,18 +64,27 @@ class _SettingsState extends State<Settings> {
                 TextButton(
                   onPressed: () => _toggleSoundWheel(true),
                   style: TextButton.styleFrom(
-                    foregroundColor: _showSoundWheel && _isStartSoundWheel ? Colors.blue : Colors.black,
+                    foregroundColor:
+                        _showSoundWheel && _isStartSoundWheel
+                            ? Colors.blue
+                            : Colors.black,
                   ),
                   child: SettingItem(
                     title: 'Play Start Sound',
                     value: settingsProvider.playStartSound,
                     onChanged: (bool value) {
-                      settingsProvider.setPlayStartSound(value, settingsProvider.startSoundFileIndex);
+                      settingsProvider.setPlayStartSound(
+                        value,
+                        settingsProvider.startSoundFileIndex,
+                      );
                     },
                     soundPath: settingsProvider.startSoundFile.path,
                     soundName: settingsProvider.startSoundFile.name,
                     textStyle: TextStyle(
-                      color: _showSoundWheel && _isStartSoundWheel ? Colors.blue : Colors.black,
+                      color:
+                          _showSoundWheel && _isStartSoundWheel
+                              ? Colors.blue
+                              : Colors.black,
                       decoration: TextDecoration.underline,
                     ),
                   ),
@@ -81,27 +92,34 @@ class _SettingsState extends State<Settings> {
                 TextButton(
                   onPressed: () => _toggleSoundWheel(false),
                   style: TextButton.styleFrom(
-                    foregroundColor: _showSoundWheel && !_isStartSoundWheel ? Colors.blue : Colors.black,
+                    foregroundColor:
+                        _showSoundWheel && !_isStartSoundWheel
+                            ? Colors.blue
+                            : Colors.black,
                   ),
                   child: SettingItem(
                     title: 'Play End Sound',
                     value: settingsProvider.playEndSound,
                     onChanged: (bool value) {
-                      settingsProvider.setPlayEndSound(value, settingsProvider.endSoundFileIndex);
+                      settingsProvider.setPlayEndSound(
+                        value,
+                        settingsProvider.endSoundFileIndex,
+                      );
                     },
                     soundPath: settingsProvider.endSoundFile.path,
                     soundName: settingsProvider.endSoundFile.name,
                     textStyle: TextStyle(
-                      color: _showSoundWheel && !_isStartSoundWheel ? Colors.blue : Colors.black,
+                      color:
+                          _showSoundWheel && !_isStartSoundWheel
+                              ? Colors.blue
+                              : Colors.black,
                       decoration: TextDecoration.underline,
                     ),
                   ),
                 ),
                 TextButton(
                   onPressed: _closeSoundWheel,
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.black,
-                  ),
+                  style: TextButton.styleFrom(foregroundColor: Colors.black),
                   child: SettingItem(
                     title: 'Play Recording',
                     value: settingsProvider.playRecording,
@@ -117,16 +135,21 @@ class _SettingsState extends State<Settings> {
                 if (_showSoundWheel)
                   SoundWheel(
                     soundFiles: settingsProvider.availableSoundFiles,
-                    initialIndex: _isStartSoundWheel
-                        ? settingsProvider.startSoundFileIndex
-                        : settingsProvider.endSoundFileIndex,
+                    initialIndex:
+                        _isStartSoundWheel
+                            ? settingsProvider.startSoundFileIndex
+                            : settingsProvider.endSoundFileIndex,
                     onSelectedItemChanged: (int index) {
                       if (_isStartSoundWheel) {
                         settingsProvider.setPlayStartSound(
-                            settingsProvider.playStartSound, index);
+                          settingsProvider.playStartSound,
+                          index,
+                        );
                       } else {
                         settingsProvider.setPlayEndSound(
-                            settingsProvider.playEndSound, index);
+                          settingsProvider.playEndSound,
+                          index,
+                        );
                       }
                     },
                   ),

@@ -4,7 +4,7 @@ class ProgressBar extends StatelessWidget {
   final double progress;
   final Duration duration;
 
-  ProgressBar({required this.progress, required this.duration});
+  const ProgressBar({super.key, required this.progress, required this.duration});
 
   String getFormattedTime(Duration duration) {
     final minutes = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
@@ -17,19 +17,20 @@ class ProgressBar extends StatelessWidget {
     return Stack(
       alignment: Alignment.center,
       children: [
-        Container(
-          height: 40, // Thicker progress bar
-          decoration: BoxDecoration(
-            color: Colors.grey[300],
-            borderRadius: BorderRadius.circular(20), // Rounded corners
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20), // Rounded corners
-            child: LinearProgressIndicator(
-              value: progress,
-              backgroundColor: Colors.transparent,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-            ),
+        SizedBox(
+          height: 200,
+          width: 200,
+          child: TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0, end: progress),
+            duration: Duration(milliseconds: 500),
+            builder: (context, value, child) {
+              return CircularProgressIndicator(
+                value: value,
+                backgroundColor: Colors.grey[300],
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                strokeWidth: 14.0,
+              );
+            },
           ),
         ),
         Text(
@@ -37,6 +38,7 @@ class ProgressBar extends StatelessWidget {
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
+            fontSize: 24,
           ),
         ),
       ],
